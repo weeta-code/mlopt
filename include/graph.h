@@ -103,4 +103,86 @@ private:
   explicit Status(std::string msg = {}) : msg_(std::move(msg)) {}
   std::string msg_;
 };
+
+// Core IR container
+
+class GraphModule {
+public:
+  GraphModule();
+  ~GraphModule();
+
+  GraphModule(GraphModule&&) noexcept;
+  GraphModule& operator=(GraphModule&&) noexcept;
+
+  // Non-copyable (internal IDS/indices to make copying error-prone for now)
+  GraphModule(const GraphModule&) = delete;
+  GraphModule& operator=(const GraphModule&) = delete;
+
+  // Constructor
+  ValueId add_input(const std::string& name, const TensorType& type);
+
+  NodeId add_node(const std::string& op,
+                  const std::vector<ValueId>& inputs,
+                  const AttrMap& attrs = {});
+
+  ValueId add_output(ValueId from_value);
+
+  // helper for tests, returns ValueId of produced constant.
+  ValueId add_const_scaler(DType dtype, const AttrValue& scalar);
+
+  // Query
+  
+  // Deterministc iteration order
+  std::vector<NodeId> nodes() const;
+  std::vector<ValueId> inputs() const;
+  std::vector<ValueId> outputs() const;
+
+  NodeView get_node(NodeId id) const;
+  ValueView get_value(ValueId id) const;
+
+  size_t num_nodes() const;
+  size_t num_values() const;
+
+  // Transforms
+
+  Status replace_node(NodeId node, const std::string& new_op,
+                      const std::vector<ValueId>& new_inputs,
+                      const AttrMap& new_attrs,
+                      NodeId* out_new_node = nullptr);
+
+  Status remove_node(NodeId node);
+
+  size_t replace_all_uses(ValueId from_value, ValueId to_value);
+
+  Status topological_sort(std::vector<NodeId>* out) const;
+
+  // Integrity
+
+  Status verify() const;
+
+  // I/O
+
+  Status to_json(const std::string& path) const;
+
+  static Status from_json(const std::string& path, GraphModule* out);
+
+  // Diagnostic
+  const std::string& last_error() const;
+
+private:
+  // PIMPL to be implemented
+  struct Impl;
+  Impl* impl_;
+};
+
+// Pass Infra (surface)
+
+class Pass {
+public: 
+  virtual ~Pass() = default;
+  virtual const char* name() const = 0;
+  virtual bool run(GraphModule& m) = 0;
+};
+
+
 };
