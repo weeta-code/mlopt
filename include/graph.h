@@ -34,7 +34,8 @@ enum class DType : uint8_t {
 struct TensorType {
   DType dtype{};
   std::vector<int64_t> shape; 
-
+  
+  // Convenience sake only
   bool is_scalar() const { return shape.empty(); }
   int64_t rank() const { return static_cast<int64_t>(shape.size()); }
 };
@@ -85,5 +86,21 @@ struct NodeView {
   std::vector<ValueId> inputs;
   std::vector<ValueId> outputs;
   AttrMap attrs;                  // snapshot
+};
+
+// Status-lite
+// Keep public surface exception-light.
+
+class Status {
+public:
+  static Status OK() { return Status(); }
+  static Status Error(std::string msg) { return Status(std::move(msg)); }
+
+  bool ok() const { return msg_.empty(); }
+  const std::string& message() const { return msg_; }
+
+private:
+  explicit Status(std::string msg = {}) : msg_(std::move(msg)) {}
+  std::string msg_;
 };
 };
