@@ -184,5 +184,26 @@ public:
   virtual bool run(GraphModule& m) = 0;
 };
 
+class PassManager {
+public:
+  PassManager();
+  ~PassManager();
 
+  PassManager(PassManager&&) noexcept;
+  PassManager& operator=(PassManager&&) noexcept;
+
+  PassManager(const PassManager&) = delete;
+  PassManager& operator=(const PassManager&) = delete;
+
+  void add(Pass* pass);
+  void clear();
+
+  void run(GraphModule& m);
+
+private:
+  struct Impl;
+  Impl* impl_;
 };
+
+
+} // namespace mlopt::ir
