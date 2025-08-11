@@ -3,11 +3,18 @@
 /**
 *     IR & GraphModule for MLOpt ver 0
 *
+*     @file graph.h
+*     @brief Minimal IR + GraphModule public surface
+*
 *     invariants:
+*     - ValueId and NodeId are stable within a GraphModule lifetime and not reused.
+*     - TensorType uses -1 for unknown Dimensions.
+*     - Mutations that affect topology must leave the graph verifiable via verify().
 *     
 *     Ownership model:
 *       - GraphModule owns all nodes/values/attrs.
 *       - All implementation details live in .cpp (attrs, storage, maps, use-lists, etc.).
+*       - Consumer interact via IDs and read-only snapshot views (ValueView/NodeView)
 */ 
 
 #include <cstdint>
