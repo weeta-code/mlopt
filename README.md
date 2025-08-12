@@ -1,8 +1,8 @@
 new proj cooking up, lots of ml compiler business with some infernece optimization sprinkled in
 
 
-CURRENTLY IN RESEARCH PHASE
+Entering Dev stage
 
-reading about mlir and onnx rn super cool compiler work
+read about mlir and onnx
 
-recently finished reading a paper about mlir its like a compiler infrastructure that exists within llvm also really cool
+Currently in development is the graph abstraction module that exists to upload models into. This will take inspiration from MLir and be used with some sort of `graph` dialect.
