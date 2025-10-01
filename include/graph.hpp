@@ -51,8 +51,8 @@ struct TensorType {
 
 using ValueId = uint32_t;
 using NodeId = uint32_t;
-inline constexpr ValueId  kInvalidValueId  = static_cast<ValueId>(-1);
-inline constexpr NodeId   kInvalidNodeId    = static_cast<NodeId>(-1);
+inline constexpr ValueId  kInvalidValueId  = std::numeric_limits<ValueId>::max();
+inline constexpr NodeId   kInvalidNodeId    = std::numeric_limits<NodeId>::max();
 
 // Attributes (public surface)
 
@@ -118,8 +118,8 @@ public:
   GraphModule();
   ~GraphModule();
 
-  GraphModule(GraphModule&&) noexcept;
-  GraphModule& operator=(GraphModule&&) noexcept;
+  GraphModule(GraphModule&&) noexcept = default;
+  GraphModule& operator=(GraphModule&&) noexcept = default;
 
   // Non-copyable (internal IDS/indices to make copying error-prone for now)
   GraphModule(const GraphModule&) = delete;
@@ -135,11 +135,11 @@ public:
   ValueId add_output(ValueId from_value);
 
   // helper for tests, returns ValueId of produced constant.
-  ValueId add_const_scaler(DType dtype, const AttrValue& scalar);
+  ValueId add_const_scalar(DType dtype, const AttrValue& scalar);
 
   // Query
   
-  // Deterministc iteration order
+  // Deterministic iteration order
   std::vector<NodeId> nodes() const;
   std::vector<ValueId> inputs() const;
   std::vector<ValueId> outputs() const;
@@ -152,26 +152,26 @@ public:
 
   // Transforms
 
-  Status replace_node(NodeId node, const std::string& new_op,
+  [[nodiscard]] Status replace_node(NodeId node, const std::string& new_op,
                       const std::vector<ValueId>& new_inputs,
                       const AttrMap& new_attrs,
                       NodeId* out_new_node = nullptr);
 
-  Status remove_node(NodeId node);
+  [[nodiscard]] Status remove_node(NodeId node);
 
   size_t replace_all_uses(ValueId from_value, ValueId to_value);
 
-  Status topological_sort(std::vector<NodeId>* out) const;
+  [[nodiscard]] Status topological_sort(std::vector<NodeId>* out) const;
 
   // Integrity
 
-  Status verify() const;
+  [[nodiscard]] Status verify() const;
 
   // I/O
 
-  Status to_json(const std::string& path) const;
+  [[nodiscard]] Status to_json(const std::string& path) const;
 
-  static Status from_json(const std::string& path, GraphModule* out);
+  [[nodiscard]] static Status from_json(const std::string& path, GraphModule* out);
 
   // Diagnostic
   const std::string& last_error() const;
@@ -179,7 +179,7 @@ public:
 private:
   // PIMPL to be implemented
   struct Impl;
-  Impl* impl_;
+  std::unique_ptr<Impl> impl_;
 };
 
 // Pass Infra (surface)
@@ -196,8 +196,8 @@ public:
   PassManager();
   ~PassManager();
 
-  PassManager(PassManager&&) noexcept;
-  PassManager& operator=(PassManager&&) noexcept;
+  PassManager(PassManager&&) noexcept = default;
+  PassManager& operator=(PassManager&&) noexcept = default;
 
   PassManager(const PassManager&) = delete;
   PassManager& operator=(const PassManager&) = delete;
@@ -209,7 +209,7 @@ public:
 
 private:
   struct Impl;
-  Impl* impl_;
+  std::unique_ptr<Impl> impl_;
 };
 
 
