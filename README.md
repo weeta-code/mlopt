@@ -5,4 +5,4 @@ Entering Dev stage
 
 read about mlir and onnx
 
-Currently in development is the graph abstraction module that exists to upload models into. This will take inspiration from MLir and be used with some sort of `graph` dialect.
+Currently in development is the graph abstraction module that exists to upload models into. This will take inspiration from MLIR and be used with some sort of `graph` dialect.
